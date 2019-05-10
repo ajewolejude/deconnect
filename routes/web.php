@@ -22,3 +22,8 @@ Route::get('/home', 'HomeController@index')->name('home');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/create', function(){
+    return view("interest.create");
+});
+
+Route::resource('interests', 'InterestController');
