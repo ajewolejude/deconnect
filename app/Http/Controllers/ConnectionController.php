@@ -70,14 +70,32 @@ class ConnectionController extends Controller
 //        }
 
         $interestofuser = DB::table('connection')
-            ->join('users', 'connection.user_id_1', '=', 'users.id')
+            ->join('users', 'connection.user_id_2', '=', 'users.id')
             ->where('connection.user_id_1', $id)
-            ->get()->pluck(['user_id_2','name','email' ]);
+            ->select('user_id_2','name', 'email')
+            ->get();
+
+
+        $interestofuser2 = DB::table('connection')
+            ->join('users', 'connection.user_id_1', '=', 'users.id')
+          ->where('connection.user_id_2', $id)
+            ->select('user_id_1','name', 'email')
+            ->get();
+//        $data[] = json_decode($interestofuser,true);
+//        $data[] = json_decode($interestofuser2,true);
+//        $json_merge = json_encode($data);
+
+        if($interestofuser->isEmpty()&& $interestofuser2->isEmpty()){
+            return response()->json(['status' => 'failed',
+                'status_code' => 404,
+                'user_id' => $id,
+                'message' => 'Record Not Found']);
+        }
 
         return response()->json(['status' => 'success',
             'status_code' => 200,
             'user_id' => $id,
-            'message' => 'Record Found', 'data' =>$interestofuser]);
+            'message' => 'Record Found', 'data' =>array_merge(json_decode($interestofuser, true),json_decode($interestofuser2, true))]);
     }
 
     /**
@@ -111,6 +129,27 @@ class ConnectionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $connection = DB::table('connection')
+            ->where('connection.user_id_1', $id)
+            ->orWhere('connection.user_id_2', $id)
+            ->get();
+
+        if($connection->isEmpty()){
+            return response()->json([
+                'error' => 'Resource not found'
+            ], 500);
+        } else{
+            if(DB::table('connection')
+                ->where('connection.user_id_1', $id)
+                ->orWhere('connection.user_id_2', $id)
+                ->delete()){
+
+                return response()->json( ['status' => 'success','message' => 'Connection deleted successfully!'], 200);
+            } else{
+                return response()->json([
+                    'error' => 'Resource not found'
+                ], 404);
+            }
+        }
     }
 }

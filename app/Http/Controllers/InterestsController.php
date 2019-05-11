@@ -106,7 +106,7 @@ class InterestsController extends Controller
         } else{
             if($intersests->delete()){
 
-                return response()->json( ['status' => 'success','message' => 'Article deleted successfully!'], 200);
+                return response()->json( ['status' => 'success','message' => 'Interest deleted successfully!'], 200);
             } else{
                 return response()->json([
                     'error' => 'Resource not found'

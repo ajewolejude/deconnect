@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Article;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Http\Controllers\Controller;
 use Auth;
 use Validator;
 use App\User;
+use Lcobucci\JWT\Parser;
 
 
 class UserController extends Controller
@@ -50,6 +53,13 @@ class UserController extends Controller
         $user = User::create($input);
         $success['token'] =  $user->createToken('MyApp')->accessToken;
         $success['name'] =  $user->name;
+        $success['email'] = $user->email;
+        $success['twitter'] = $user->twitter;
+        $success['github'] = $user->github;
+        $success['linkedin'] = $user->linkedin;
+        $success['profile_pic'] = $user->profile_pic;
+        $success['website'] = $user->website;
+
         return response()->json(['success'=>$success], 200);
     }
 
@@ -58,5 +68,38 @@ class UserController extends Controller
     {
         $users = User::get();
         return response()->json(['success' => $users], 200);
+    }
+
+    public function updateDetail(Request $request, $id){
+
+        $users = User::find($id);
+        $users->update($request->all());
+
+
+        return $users;
+    }
+
+    public function  userDetail($id){
+        if(User::find($id) == null){
+            return response()->json([
+                'error' => 'Resource not found'
+            ], 404);
+        } else{
+            return response()->json(['status' => 'success',
+                'status_code' => 200,
+                'message' => 'Record Found', 'data' =>User::find($id)]);
+        }
+    }
+
+    public function logoutApi(Request $request)
+    {
+        $value = $request->bearerToken();
+        $id = (new Parser())->parse($value)->getHeader('jti');
+        $token = $request->user()->tokens()->find($id);
+        $token->revoke();
+        $response = "You are logged out.";
+        return response()->json([
+            'message' => $response
+        ],200);
     }
 }

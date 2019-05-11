@@ -23,19 +23,25 @@ Route::post('interestsubmit', 'InterestsController@store');
 Route::delete('interestdelete/{id}', 'InterestsController@destroy');
 
 
-Route::post('interestofusers', 'InterestUsersController@store');
+Route::post('interestofusers/add', 'InterestUsersController@store');
 
 Route::get('interestofusers/user/{user_id}', 'InterestUsersController@show');
+
 
 
 //Conection
 Route::post('connection/post', 'ConnectionController@store');
 Route::get('connection/', 'ConnectionController@getall');
-Route::get('connection/get/{id}', 'ConnectionController@getone');
+Route::get('connection/user/get/{id}', 'ConnectionController@getone');
+Route::delete('connection/delete/{user_id}', 'ConnectionController@destroy');
 
 
 Route::post('userLogin', 'UserController@userLogin');
 Route::post('userRegister', 'UserController@userRegister');
-//Route::group(['middleware' => 'auth:api'], function(){
+Route::get('userDetail/{id}', 'UserController@userDetail');
+Route::put('updateDetail/{id}', 'UserController@updateDetail');
+Route::group(['middleware' => 'auth:api'], function(){
     Route::get('userDetails', 'UserController@userDetails');
-//});
+    Route::post('userLogout','UserController@logoutApi');
+
+});
